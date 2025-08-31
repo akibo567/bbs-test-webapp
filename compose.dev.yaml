@@ -1,0 +1,49 @@
+# compose.dev.yaml（開発時だけ重ねる）
+services:
+  frontend:
+    develop:
+      watch:
+        # ソースは同期（NextのHMRで即反映）
+        - action: sync
+          path: ./frontend
+          target: /app
+          ignore:
+            - node_modules/
+            - .next/
+        # 依存が変わったら再ビルド
+        - action: rebuild
+          path: ./frontend/package.json
+        - action: rebuild
+          path: ./frontend/package-lock.json
+
+  api:
+    develop:
+      watch:
+        # Goのソースを同期して…
+        - action: sync
+          path: ./api
+          target: /src
+          include: "*.go"
+        # go.mod/sum 変更は再ビルド
+        - action: rebuild
+          path: ./api/go.mod
+        - action: rebuild
+          path: ./api/go.sum
+        # 同期後に任意コマンド（高速リロード）
+        - action: sync+exec
+          path: ./api
+          target: /src
+          include: "*.go"
+          exec:
+            # 例：再コンパイル→プロセスにHUP（自作scriptでもOK）
+            command: sh -lc "cd /src && go build -o /app/app ./... && pkill -HUP app || true"
+
+  nginx:
+    develop:
+      watch:
+        # 設定だけ同期してグレースフルリロード
+        - action: sync+exec
+          path: ./nginx/nginx.conf
+          target: /etc/nginx/nginx.conf
+          exec:
+            command: nginx -s reload
