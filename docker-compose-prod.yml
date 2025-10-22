@@ -1,0 +1,8 @@
+services:
+  frontend:
+    build:
+      dockerfile: Dockerfile
+      target: runner
+  api:
+    build:
+      target: runner

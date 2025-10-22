@@ -1,22 +1,26 @@
-# Build stage
-FROM node:20-alpine AS builder
+ARG NODE_IMAGE=node:20-alpine
+
+FROM ${NODE_IMAGE} AS base
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
-COPY . .
-# Next.js 13+ / 15系なら standalone 出力を推奨
-# next.config.js で output: 'standalone' にしておく
-RUN npm run build
+RUN --mount=type=cache,target=/root/.npm npm ci
 
-# Run stage
-FROM node:20-alpine AS runner
+FROM base AS dev
+ENV NODE_ENV=development
+EXPOSE 3000
+CMD ["npm","run","dev"]
+
+FROM base AS builder
+COPY . .
+RUN npm run build  # Nextなら output: 'standalone'
+
+
+FROM ${NODE_IMAGE} AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-# standalone で最小ファイル群だけコピー
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-# Next が期待するPORT
-ENV PORT=3000
+USER node
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node","server.js"]
