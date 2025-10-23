@@ -19,10 +19,19 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
+      target: dev
+    working_dir: /app
+    command: ["air", "-c", ".air.toml"]  # 明示
+    volumes:
+      - ./api:/app:cached
+      - go-mod:/go/pkg/mod   # go mod キャッシュ
+      - go-build:/root/.cache/go-build
     environment:
+      - GO111MODULE=on
+      - CGO_ENABLED=0
+      - PORT=8080
       # DB接続文字列は内部ネットワーク名で
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
-      PORT: "8080"
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
     depends_on:
       db:
         condition: service_healthy
@@ -62,6 +71,8 @@ services:
 
 volumes:
   pgdata:
+  go-mod:
+  go-build:
 
 networks:
   internal:

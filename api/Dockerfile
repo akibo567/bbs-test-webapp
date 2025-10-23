@@ -1,15 +1,4 @@
-# Build stage
-FROM golang:1.25-alpine AS builder
-WORKDIR /src
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-# CGO無効で静的リンク（必要に応じて）
-ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
-RUN go build -ldflags="-s -w" -o /out/app ./...
-
-# Dev stage（開発用：Debian 12 + Go + air + sh あり）
-FROM golang:1.25-alpine AS dev
+FROM golang:1.25-alpine AS base
 WORKDIR /app
 ENV CGO_ENABLED=0 \
     GO111MODULE=on \
@@ -21,8 +10,18 @@ COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod \
     go mod download
 
-#ENV PORT=8080
-#EXPOSE 8080
+# ===== dev =====
+FROM base AS dev
+# air を導入（cosmtrek/air）
+RUN go install github.com/air-verse/air@v1.52.3
+# ソース一式（ホットリロード時はボリュームで上書きされる）
+COPY . .
+# デフォルトは air 起動
+CMD ["air", "-c", ".air.toml"]
+
+
+ENV PORT=8080
+EXPOSE 8080
 
 # air をインストール（PATH: /go/bin）
 #RUN go install github.com/air-verse/air@latest
