@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build  # Nextなら output: 'standalone'
 
 
-FROM ${NODE_IMAGE} AS runner
+FROM ${NODE_IMAGE} AS prod
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=builder /app/.next/standalone ./

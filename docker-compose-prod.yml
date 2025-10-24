@@ -2,7 +2,7 @@ services:
   frontend:
     build:
       dockerfile: Dockerfile
-      target: runner
+      target: prod
   api:
     build:
-      target: runner
+      target: prod

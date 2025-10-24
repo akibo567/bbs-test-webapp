@@ -70,7 +70,7 @@ COPY . .
 # ビルドキャッシュ活用
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    go build -trimpath -ldflags="-s -w" -o /bin/app ./cmd/server
+    go build -trimpath -ldflags="-s -w" -o /bin/app ./
 
 # ===== prod (distroless / glibc系 / 最小) =====
 FROM gcr.io/distroless/static-debian12:nonroot AS prod
