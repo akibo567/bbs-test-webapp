@@ -29,7 +29,7 @@ func main() {
 
 	// 実API: /api/... に合わせる
 	http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, `{"message":"helloOOO"}`)
+		fmt.Fprintln(w, `{"message":"hello"}`)
 	})
 
 	log.Printf("listening on :%s", port)
