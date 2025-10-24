@@ -15,6 +15,12 @@ services:
   api:
     build:
       target: dev
+    command: ["air", "-c", ".air.toml"]
+    volumes:
+      - ./api:/app:cached
+      - go-mod:/go/pkg/mod   # go mod キャッシュ
+      - go-build:/root/.cache/go-build
+
 volumes:
   node_modules:
   go-mod:

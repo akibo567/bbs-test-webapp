@@ -19,13 +19,7 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-      target: dev
     working_dir: /app
-    command: ["air", "-c", ".air.toml"]  # 明示
-    volumes:
-      - ./api:/app:cached
-      - go-mod:/go/pkg/mod   # go mod キャッシュ
-      - go-build:/root/.cache/go-build
     environment:
       - GO_COMPAT=1.25
       #- GO111MODULE= on
