@@ -1,3 +1,5 @@
+name: standard_app_dev
+
 services:
   frontend:  # ← base 側のサービス名と一致させる
     build:

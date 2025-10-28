@@ -1,3 +1,5 @@
+name: standard_app_prod
+
 services:
   frontend:
     build:
