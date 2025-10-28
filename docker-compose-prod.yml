@@ -5,4 +5,5 @@ services:
       target: prod
   api:
     build:
+      dockerfile: Dockerfile
       target: prod
