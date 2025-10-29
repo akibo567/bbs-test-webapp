@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NeoBBS — かっちょいい掲示板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-top">
+      <div class="logo">BBS</div>
+      <div>
+        <h1>NeoBBS — かっちょいい掲示板</h1>
+        <div class="hero-sub">ガラス質感 × ネオンサイバー。レスポンシブ＆アクセシブル。</div>
+      </div>
+      <form class="search" role="search" aria-label="スレッド検索">
+        <input type="search" placeholder="キーワードで検索…" aria-label="検索ワード">
+        <button class="btn" type="submit">検索</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="wrap" role="main">
+    <aside class="side" aria-label="サイドバー">
+      <section class="card">
+        <h3>トピック</h3>
+        <div class="chips">
+          <span class="chip">#雑談</span>
+          <span class="chip">#技術</span>
+          <span class="chip">#質問</span>
+          <span class="chip">#ニュース</span>
+          <span class="chip">#自己紹介</span>
+          <span class="chip">#作品発表</span>
+        </div>
+      </section>
+      <section class="card">
+        <h3>ガイド</h3>
+        <div class="body">マナーを守って楽しく。ネタバレはタグで注意、コードは```で囲ってね。</div>
+      </section>
+    </aside>
+
+    <section class="main">
+      <div class="toolbar">
+        <strong>人気のスレッド</strong>
+        <div class="filter select" role="listbox" aria-label="並び替え">
+          並び: 新着順 ▾
+        </div>
+      </div>
+
+      <!-- Thread card 1 -->
+      <article class="thread" aria-labelledby="t1-title">
+        <div class="avatar" aria-hidden="true">AK</div>
+        <div class="content">
+          <h2 id="t1-title">Next.js × Go × Postgres で作品公開した！</h2>
+          <div class="meta">
+            <span>作成: 2025/10/29 12:30</span>
+            <span>投稿者: ほげお</span>
+            <span>カテゴリ: 技術</span>
+          </div>
+          <p>
+            Docker Composeで構築メモまとめました。ハマり所や本番最適化の話も。質問歓迎！
+          </p>
+          <div class="tags">
+            <span class="tag">#Docker</span>
+            <span class="tag">#Next.js</span>
+            <span class="tag">#Go</span>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="pill hot">🔥 Hot</div>
+          <div class="count">87レス • 1,203ビュー</div>
+        </div>
+      </article>
+
+      <!-- Thread card 2 -->
+      <article class="thread" aria-labelledby="t2-title">
+        <div class="avatar" aria-hidden="true">TM</div>
+        <div class="content">
+          <h2 id="t2-title">電工2種 実技の欠陥ポイント総まとめ</h2>
+          <div class="meta">
+            <span>作成: 2025/10/27 09:10</span>
+            <span>投稿者: ふがみ</span>
+            <span>カテゴリ: 資格</span>
+          </div>
+          <p>
+            のの字曲げや被覆噛みなど、落とし穴を図解。写真付きで分かりやすく解説するよ。
+          </p>
+          <div class="tags">
+            <span class="tag">#電工2種</span>
+            <span class="tag">#受験</span>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="pill ok">✅ Solved</div>
+          <div class="count">24レス • 680ビュー</div>
+        </div>
+      </article>
+
+      <!-- Thread card 3 -->
+      <article class="thread" aria-labelledby="t3-title">
+        <div class="avatar" aria-hidden="true">GF</div>
+        <div class="content">
+          <h2 id="t3-title">好きな開発カフェ in 大阪</h2>
+          <div class="meta">
+            <span>作成: 2025/10/25 18:42</span>
+            <span>投稿者: ぴよすけ</span>
+            <span>カテゴリ: 雑談</span>
+          </div>
+          <p>
+            Wi‑Fiと電源が強いスポット、静けさ、長居OKか…あなたの推しを教えて！
+          </p>
+          <div class="tags">
+            <span class="tag">#大阪</span>
+            <span class="tag">#作業場</span>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="pill">💬 Open</div>
+          <div class="count">41レス • 1,028ビュー</div>
+        </div>
+      </article>
+
+      <!-- Composer -->
+      <section class="composer" aria-label="新規スレッド作成">
+        <div class="row">
+          <input class="input" type="text" placeholder="タイトル" aria-label="タイトル">
+          <input class="input" type="text" placeholder="タグ (カンマ区切り)" aria-label="タグ">
+        </div>
+        <textarea placeholder="本文… (Markdown可)" aria-label="本文"></textarea>
+        <div class="row" style="justify-content: space-between; align-items:center">
+          <div class="meta" aria-hidden="true">Ctrl/⌘ + Enter で投稿</div>
+          <button class="btn" type="button" aria-label="投稿">投稿する</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+    <footer>
+        <span id="copywrite">© 2025 NeoBBS. UIだけのデモ (HTML+CSS) — 振る舞いは未実装です。</span>
+    </footer>
+</body>
+</html>
