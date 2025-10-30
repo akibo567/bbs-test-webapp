@@ -13,7 +13,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks: [internal]
 
   api:
     build:
@@ -28,9 +27,13 @@ services:
       - PORT=8080
       # DB接続文字列は内部ネットワーク名で
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+      - HTTP_PROXY=http://squid:3128
+      - HTTPS_PROXY=http://squid:3128
     depends_on:
       db:
         condition: service_healthy
+      squid:
+        condition: service_started
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
       interval: 10s
@@ -45,8 +48,12 @@ services:
       # Nextはビルド時に読み込む。公開値はNEXT_PUBLIC_*で。
       NEXT_PUBLIC_API_BASE: "/api"
       PORT: "3000"
+      HTTP_PROXY:  http://squid:3128
+      HTTPS_PROXY: http://squid:3128
     depends_on:
       api:
+        condition: service_started
+      squid:
         condition: service_started
     networks: [internal]
 
@@ -64,6 +71,18 @@ services:
     networks:
       - internal
       - edge
+
+  
+  squid:
+    image: ubuntu/squid:5.2-22.04_beta
+    volumes:
+      - ./squid/squid.conf:/etc/squid/squid.conf:ro
+    ports:
+      - "3128:3128"
+    networks:
+      - internal
+      - edge
+
 
 volumes:
   pgdata:

@@ -6,7 +6,7 @@ FROM ${GOLANG_IMAGE} AS base
 WORKDIR /app
 ENV CGO_ENABLED=0 \
     #GO111MODULE=on \
-    GOPROXY=https://proxy.golang.org,direct \
+    GOPROXY=https://proxy.golang.org \
     GOSUMDB=sum.golang.org \
     GOTOOLCHAIN=local
 
@@ -20,14 +20,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM base AS dev
 RUN go install github.com/air-verse/air@latest
 
-COPY go.mod go.sum ./
-RUN go mod download
+#COPY go.mod go.sum ./
+#RUN go mod download
 # プロジェクト一式
 #COPY . .
 # 起動時に go mod init/tidy を自動化するエントリポイント
-#COPY docker-scripts/dev-entrypoint.sh /usr/local/bin/dev-entrypoint
-#RUN chmod +x /usr/local/bin/dev-entrypoint
-#ENTRYPOINT ["/usr/local/bin/dev-entrypoint"]
+COPY docker-scripts/dev-entrypoint.sh /usr/local/bin/dev-entrypoint
+RUN chmod +x /usr/local/bin/dev-entrypoint
+ENTRYPOINT ["/usr/local/bin/dev-entrypoint"]
 CMD ["air", "-c", ".air.toml"]
 
 ENV PORT=8080

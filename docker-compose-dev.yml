@@ -22,7 +22,6 @@ services:
       target: dev
       args:
         GOLANG_IMAGE: golang:1.25-bookworm
-    #command: ["air", "-c", ".air.toml"]
     volumes:
       - ./api:/app:cached
       - go-mod:/go/pkg/mod   # go mod キャッシュ
