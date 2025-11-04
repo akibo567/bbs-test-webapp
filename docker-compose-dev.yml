@@ -16,6 +16,9 @@ services:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"
+    networks:
+        - internal
+        - edge
   api:
     build:
       dockerfile: Dockerfile
@@ -26,9 +29,9 @@ services:
       - ./api:/app:cached
       - go-mod:/go/pkg/mod   # go mod キャッシュ
       - go-build:/root/.cache/go-build
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
+    networks:
+      - internal
+      - edge
 volumes:
   node_modules:
   go-mod:

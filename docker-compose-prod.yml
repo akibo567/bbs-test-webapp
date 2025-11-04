@@ -4,7 +4,30 @@ services:
     build:
       dockerfile: Dockerfile
       target: prod
+    environment:
+      HTTP_PROXY:  http://squid:3128
+      HTTPS_PROXY: http://squid:3128
+    depends_on:
+      squid:
+        condition: service_started
+    networks: [internal]
   api:
     build:
       dockerfile: Dockerfile
       target: prod
+    environment:
+      HTTP_PROXY:  http://squid:3128
+      HTTPS_PROXY: http://squid:3128
+    depends_on:
+      squid:
+        condition: service_started
+    networks: [internal]
+  squid:
+    image: ubuntu/squid:5.2-22.04_beta
+    volumes:
+      - ./squid/squid.conf:/etc/squid/squid.conf:ro
+    ports:
+      - "3128:3128"
+    networks:
+      - internal
+      - edge
