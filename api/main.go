@@ -2,11 +2,11 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
@@ -19,21 +19,47 @@ func main() {
 	}
 	defer db.Close()
 
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	router := gin.Default()
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
+
+	router.GET("/health", func(c *gin.Context) {
 		if err := db.Ping(); err != nil {
-			http.Error(w, "db not ready", 500)
+			c.String(http.StatusInternalServerError, "db not ready")
 			return
 		}
-		fmt.Fprintln(w, "ok")
+		c.String(http.StatusOK, "ok")
 	})
 
-	// 実API: /api/... に合わせる
-	http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, `{"message":"hello!!!"}`)
-	})
+	// /api/... に合わせるなら、/apiグループを定義
 
-	log.Printf("listening on :%s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	router.GET("/hello", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "hello",
+		})
+	})
+	router.Run(":" + port)
+
+	/*
+		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			if err := db.Ping(); err != nil {
+				http.Error(w, "db not ready", 500)
+				return
+			}
+			fmt.Fprintln(w, "ok")
+		})
+
+		// 実API: /api/... に合わせる
+		http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintln(w, `{"message":"hello!!!"}`)
+		})
+
+		log.Printf("listening on :%s", port)
+		log.Fatal(http.ListenAndServe(":"+port, nil))
+	*/
 }
 
 func getenv(k, def string) string {
