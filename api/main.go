@@ -10,6 +10,10 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type Ping2 struct {
+	TEST string
+}
+
 func main() {
 	port := getenv("PORT", "8080")
 	dbURL := getenv("DATABASE_URL", "")
@@ -23,6 +27,18 @@ func main() {
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
+		})
+	})
+
+	router.POST("/ping2", func(c *gin.Context) {
+		var from_front Ping2
+		var res_mes string = "pong"
+
+		if c.ShouldBind(&from_front) == nil {
+			res_mes += from_front.TEST
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": res_mes,
 		})
 	})
 
@@ -41,25 +57,9 @@ func main() {
 			"message": "hello",
 		})
 	})
+
 	router.Run(":" + port)
 
-	/*
-		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-			if err := db.Ping(); err != nil {
-				http.Error(w, "db not ready", 500)
-				return
-			}
-			fmt.Fprintln(w, "ok")
-		})
-
-		// 実API: /api/... に合わせる
-		http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintln(w, `{"message":"hello!!!"}`)
-		})
-
-		log.Printf("listening on :%s", port)
-		log.Fatal(http.ListenAndServe(":"+port, nil))
-	*/
 }
 
 func getenv(k, def string) string {
