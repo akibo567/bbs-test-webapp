@@ -16,47 +16,80 @@ interface Type_ChatMessage1_props{
   message:string;
 }
 
-export default function Home() {
+  const APIENDPOINT:string = "/api";
 
-  const [kakikomis,Ckakikomis] = useState<Type_kakikomi[]>([]);
-
-  const fetchPosts = async () => {
-    Ckakikomis(
-      [
-        ...kakikomis,
-        {
-          id:1,
-          name:"三郎",
-          message:"こんにちは"
-        },
-        {
-          id:2,
-          name:"花子",
-          message:"さようなら"
-        }
-      ]
-    )
-  };
-
-  const fetchPing = async () => {
-      const res = await fetch("/api/ping2", {
+    const SendKakikomi:Function = async (_name:string,_message:string) => {
+      const res = await fetch(APIENDPOINT +"/post_message", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         // 送信したいデータ
         body: JSON.stringify({
-          TEST: "20",
+          Name: _name,
+          Message: _message,
         }),
       });
 
-      const ping_resp = await res.json();
-      console.log(ping_resp["message"]);
+      await alert(res);
+      //const ping_resp = await res.json();
+      //console.log(ping_resp["message"]);
   };
 
+   const Loadkakikomi:Function = async () => {
+      const res = await fetch(APIENDPOINT + "/get_chat_messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // 送信したいデータ
+        /*body: JSON.stringify({
+          TEST: "20",
+        }),*/
+      });
+
+      const respj = await res.json();
+      //console.log(respj);
+      
+      let return_messages:Type_kakikomi[]=[];
+      respj["messages"].map( (resp) => {
+        return_messages = [
+          ...return_messages,
+          {
+            id:resp["id"],
+            name:resp["name"],
+            message:resp["message"],
+          }
+        //console.log(resp["message"])
+      ]});
+      //console.log(respj["message"]);
+      return respj["messages"];
+  };
+
+export default function Home() {
+
+  const [kakikomis,Ckakikomis] = useState<Type_kakikomi[]>([]);
+  const [input_name,Cinput_name] = useState<string>();
+  const [input_message,Cinput_message] = useState<string>();
+
+  async function fetchPosts(_viewpostsdata:Type_kakikomi[]){
+    console.log(_viewpostsdata);
+    Ckakikomis(
+      [
+        ..._viewpostsdata,
+      ]
+    )
+  };
+
+
+
   useEffect(() => {
-    fetchPosts();
-    fetchPing();
+    //fetchPosts();
+  (async () => {
+    const data = await Loadkakikomi();
+    fetchPosts(data);
+  })();
+    //fetchPing();
   }, []);
 
   return (
@@ -79,8 +112,33 @@ export default function Home() {
       name="次郎"
       message="こんちくわ"
     />*/}
+
+<div>
+    <label>名前:</label>
+    <textarea
+    value={input_name}
+    onChange={(e)=> {Cinput_name(e.target.value)} }
+    />
+</div>
+<div>
+    <label>メッセージ:</label>
+    <textarea
+    value={input_message}
+    onChange={(e)=> {Cinput_message(e.target.value)} }
+    />
+</div>
+
+    <button onClick={()=>{
+      SendKakikomi(input_name,input_message);
+      //alert(input_message);
+    }}>送信</button>
     </div>
   );
+
+
+
+
+
 }
 
 
