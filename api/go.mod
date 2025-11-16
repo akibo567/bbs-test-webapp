@@ -1,4 +1,4 @@
-module api
+module bbs-test-webapp
 
 go 1.25
 
