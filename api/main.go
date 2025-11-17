@@ -10,8 +10,9 @@ import (
 	_ "github.com/lib/pq"
 
 	"bbs-test-webapp/util"
-	"bbs-test-webapp/server/easychat"
 	"bbs-test-webapp/server"
+	"bbs-test-webapp/server/easychat"
+	"bbs-test-webapp/server/bbs"
 )
 
 func main() {
@@ -37,11 +38,12 @@ func main() {
 
 	server.Router.GET("/hello", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "heLあo",
+			"message": "hello",
 		})
 	})
 
 	easychat.Chatrouting();
+	bbs.BBSrouting();
 
 
 
