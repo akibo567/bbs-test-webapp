@@ -26,7 +26,8 @@ type Send_Chat_Message struct {
 func Chatrouting(){
 
 	server.Router.POST("/get_chat_messages", func(c *gin.Context) {
-		rows, err := server.DB.Query(`SELECT id,name,message FROM test_kakikomi LIMIT 5`)
+		rows, err := server.DB.Query(`SELECT id,name,message FROM test_kakikomi 
+		ORDER BY id DESC LIMIT 10`)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -74,7 +75,7 @@ func Chatrouting(){
 			INSERT INTO public.test_kakikomi (name, message) VALUES ($1, $2)
 		`, from_front.Name, from_front.Message)
 		if err != nil {
-			log.Printf(err.Error())
+			//log.Printf(err.Error())
 			// エラー内容を返して原因を掴む
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
