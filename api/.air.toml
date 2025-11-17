@@ -2,7 +2,13 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-cmd = "go build -o ./tmp/app ./..."
+cmd = "go build -v -o ./tmp/app ."
 bin = "./tmp/app"
 include_ext = ["go", "mod", "sum"]
 exclude_dir = ["tmp", "vendor"]
+log = "build-errors.log"      # これ大事：tmp_dir/log になる
+stop_on_error = true          # エラーのときは古いバイナリを走らせない
+
+[log]
+main_only = false             # build ログもちゃんと出す
+time = true                   # （お好みで）
