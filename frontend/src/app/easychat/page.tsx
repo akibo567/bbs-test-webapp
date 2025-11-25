@@ -31,9 +31,10 @@ interface Type_ChatMessage1_props{
         }),
       });
 
-      await alert(res);
+      //await alert(res);
       //const ping_resp = await res.json();
       //console.log(ping_resp["message"]);
+      
   };
 
    const Loadkakikomi:Function = async () => {
