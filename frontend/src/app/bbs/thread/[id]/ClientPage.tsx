@@ -162,7 +162,7 @@ export function ClientPage({ pageid }: { pageid: string }) {
 export function MessageCard(props:Type_MessageCard_props) {
 
   return (
-    <div>
+    <div className="card">
       <div>
         <span>名前：</span>
         <span>{props.name}</span>

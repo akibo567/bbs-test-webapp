@@ -167,7 +167,8 @@ export function ThreadCard(props:Type_ThreadCard_props) {
   const router = useRouter();
 
   return (
-    <div onClick={() => router.push("/bbs/thread/"+props.id)}>
+    <div className="card"
+    onClick={() => router.push("/bbs/thread/"+props.id)}>
       <span>{props.title? props.title: '名無しスレ'}</span>
     </div>
   );

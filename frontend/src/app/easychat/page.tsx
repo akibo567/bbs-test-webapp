@@ -144,7 +144,7 @@ export default function Home() {
 
 export function ChatMessage1(props:Type_ChatMessage1_props) {
   return (
-    <div>
+    <div className="card">
       <span>名前:{props.name}</span>
       <div>{props.message}</div>
     </div>
