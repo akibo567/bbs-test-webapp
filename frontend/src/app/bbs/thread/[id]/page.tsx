@@ -1,8 +1,18 @@
 
-export default function Home({ params }: { params: { id: string } }) {
+import { use } from "react";
+import {ClientPage} from './ClientPage';
+
+
+export default function Home({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+
+
   return (
-    <div>
-     ID は {params.id} だよ
-    </div>
+    <ClientPage pageid={id}/>
   );
+
+
+
+
+
 }

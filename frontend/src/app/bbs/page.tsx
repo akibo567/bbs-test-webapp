@@ -3,23 +3,29 @@
 //import Image from "next/image";
 
 import { useState,useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+
+
 
 interface Type_Thread {
   id: number;
   name: string;
   title: string;
+  message: string;
 }
 
 interface Type_ThreadCard_props{
   id:number;
   name:string;
   title:string;
+  message:string;
 }
 
   const APIENDPOINT:string = "/api";
 
-    const MakeThread:Function = async (_name:string,_title:string) => {
-      const res = await fetch(APIENDPOINT +"/post_threads", {
+    const MakeThread:Function = async (_name:string,_title:string,_message:string) => {
+      const res = await fetch(APIENDPOINT +"/bbs/post_thread", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,16 +34,21 @@ interface Type_ThreadCard_props{
         body: JSON.stringify({
           Name: _name,
           Title: _title,
+          Message: _message,
         }),
       });
 
-      await alert(res);
+      if(res.status==200){
+        alert("書き込みました！");
+      }else{
+        alert("書き込みに失敗しました");
+      }
       //const ping_resp = await res.json();
       //console.log(ping_resp["message"]);
   };
 
    const LoadThreads:Function = async () => {
-      const res = await fetch(APIENDPOINT + "/get_threads", {
+      const res = await fetch(APIENDPOINT + "/bbs/get_threads", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,6 +58,10 @@ interface Type_ThreadCard_props{
           TEST: "20",
         }),*/
       });
+
+      if(res.status!=200){
+        alert("ロードに失敗しました");
+      }
 
       const respj = await res.json();
       //console.log(respj);
@@ -71,6 +86,7 @@ export default function Home() {
   const [threads,Cthreads] = useState<Type_Thread[]>([]);
   const [input_name,Cinput_name] = useState<string>();
   const [input_title,Cinput_title] = useState<string>();
+  const [input_message,Cinput_message] = useState<string>();
 
   async function fetchPosts(_viewthreadsdata:Type_Thread[]){
     console.log(_viewthreadsdata);
@@ -103,6 +119,7 @@ export default function Home() {
               id={thread.id}
               name={thread.name}
               title={thread.title}
+              message={thread.message}
               />
             </div>
           )
@@ -124,8 +141,16 @@ export default function Home() {
     />
 </div>
 
+<div>
+    <label>本文:</label>
+    <textarea
+    value={input_message}
+    onChange={(e)=> {Cinput_message(e.target.value)} }
+    />
+</div>
+
     <button onClick={()=>{
-      MakeThread(input_name,input_title);
+      MakeThread(input_name,input_title,input_message);
       //alert(input_message);
     }}>送信</button>
     </div>
@@ -139,9 +164,11 @@ export default function Home() {
 
 
 export function ThreadCard(props:Type_ThreadCard_props) {
+  const router = useRouter();
+
   return (
-    <div>
-      <span>{props.title? props.title: '名無しすれ'}</span>
+    <div onClick={() => router.push("/bbs/thread/"+props.id)}>
+      <span>{props.title? props.title: '名無しスレ'}</span>
     </div>
   );
 }
