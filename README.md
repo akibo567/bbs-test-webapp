@@ -41,3 +41,19 @@ frontend / api のどちらにもアタッチ可能
 1. VSCode で `Dev Containers: Open Folder in Container...` を実行
 2. `.devcontainer/frontend` または `.devcontainer/api` を選択
 3. コンテナが起動し、デフォルトの作業ディレクトリで開く
+
+
+### Linter
+
+apiコンテナにアタッチして
+```
+golangci-lint run --fix
+```
+を実行
+
+frontendコンテナにアタッチして
+```
+npx eslint . --fix
+npx prettier . --write
+```
+を実行
