@@ -34,3 +34,10 @@ Next(Frontend)＋Go(Backend)＋PostgreSQL＋nginxで作る、Docker Composeの�
 ```
 ./prod_stop.sh
 ```
+
+### VSCode (Dev Containers) での起動
+frontend / api のどちらにもアタッチ可能
+
+1. VSCode で `Dev Containers: Open Folder in Container...` を実行
+2. `.devcontainer/frontend` または `.devcontainer/api` を選択
+3. コンテナが起動し、デフォルトの作業ディレクトリで開く
