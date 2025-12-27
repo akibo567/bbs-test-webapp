@@ -1,25 +1,25 @@
 package main
 
 import (
-	//"database/sql"
-	//"log"
+	// "database/sql"
+	// "log"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 
-	"bbs-test-webapp/util"
 	"bbs-test-webapp/server"
-	"bbs-test-webapp/server/easychat"
 	"bbs-test-webapp/server/bbs"
+	"bbs-test-webapp/server/easychat"
+	"bbs-test-webapp/util"
 )
 
 func main() {
 	port := util.Getenv("PORT", "8080")
 
-    server.InitDB()
-    server.InitRouter()
+	server.InitDB()
+	server.InitRouter()
 
 	server.Router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"}, // or "*"
@@ -35,19 +35,14 @@ func main() {
 		c.String(http.StatusOK, "ok")
 	})
 
-
 	server.Router.GET("/hello", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "hello",
 		})
 	})
 
-	easychat.Chatrouting();
-	bbs.BBSrouting();
-
-
-
-	
+	easychat.Chatrouting()
+	bbs.BBSrouting()
 
 	server.Router.Run(":" + port)
 

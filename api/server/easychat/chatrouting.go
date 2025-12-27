@@ -6,9 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	//"bbs-test-webapp/util"
+	// "bbs-test-webapp/util"
 	"bbs-test-webapp/server"
-
 )
 
 type Receive_Chat_Message struct {
@@ -22,8 +21,7 @@ type Send_Chat_Message struct {
 	Message string `json:"message"`
 }
 
-
-func Chatrouting(){
+func Chatrouting() {
 
 	server.Router.POST("/get_chat_messages", func(c *gin.Context) {
 		rows, err := server.DB.Query(`SELECT id,name,message FROM test_kakikomi 
@@ -61,7 +59,7 @@ func Chatrouting(){
 	server.Router.POST("/post_message", func(c *gin.Context) {
 
 		var from_front Receive_Chat_Message
-		var res_mes string = "pong"
+		var res_mes = "pong"
 
 		if c.ShouldBind(&from_front) == nil {
 			res_mes += from_front.Message
@@ -75,7 +73,7 @@ func Chatrouting(){
 			INSERT INTO public.test_kakikomi (name, message) VALUES ($1, $2)
 		`, from_front.Name, from_front.Message)
 		if err != nil {
-			//log.Printf(err.Error())
+			// log.Printf(err.Error())
 			// エラー内容を返して原因を掴む
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

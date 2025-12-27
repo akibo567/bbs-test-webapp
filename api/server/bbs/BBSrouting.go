@@ -6,47 +6,45 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	//"bbs-test-webapp/util"
+	// "bbs-test-webapp/util"
 	"bbs-test-webapp/server"
-
 )
 
-//フロントから受け取るスレッド書き込みの形式
+// フロントから受け取るスレッド書き込みの形式
 type Receive_Thread struct {
-	Name string
-	Title string
+	Name    string
+	Title   string
 	Message string
 }
 
-//バックエンドから送るスレッド一覧JSONの形式
+// バックエンドから送るスレッド一覧JSONの形式
 type Send_Thread struct {
 	ID      int    `json:"id"`
-	Title string `json:"title"`
-	Name string `json:"name"`
+	Title   string `json:"title"`
+	Name    string `json:"name"`
 	Message string `json:"message"`
 }
 
-//フロントから受け取るメッセージ書き込みの形式
+// フロントから受け取るメッセージ書き込みの形式
 type Receive_Message struct {
-	Name string
-	ThreadID int
+	Name         string
+	ThreadID     int
 	Message_Text string
 }
 
-//バックエンドから送るスレッドのメッセージ形式
+// バックエンドから送るスレッドのメッセージ形式
 type Send_Message struct {
-	ID      int    `json:"id"`
-	Name string `json:"name"`
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
 	Message_Text string `json:"message_text"`
 }
 
-//メッセージ一覧取得時のスレッド情報取得の形式
+// メッセージ一覧取得時のスレッド情報取得の形式
 type Receive_Thread_Info struct {
 	ID int
 }
 
-
-func BBSrouting(){
+func BBSrouting() {
 
 	server.Router.POST("/bbs/get_threads", func(c *gin.Context) {
 		rows, err := server.DB.Query(`SELECT id,title FROM threads 
@@ -66,8 +64,8 @@ func BBSrouting(){
 			}
 			bbs_threads = append(bbs_threads, Send_Thread{
 				ID:      id,
-				Title: title,
-				Name: "PLACEHOLDER",
+				Title:   title,
+				Name:    "PLACEHOLDER",
 				Message: "本文なし",
 			})
 
@@ -88,7 +86,7 @@ func BBSrouting(){
 			"message": res_mes,
 		})*/
 		if c.ShouldBind(&from_front) != nil {
-			
+
 		}
 
 		var insertedThreadID int
@@ -100,7 +98,7 @@ func BBSrouting(){
 		`, from_front.Title).Scan(&insertedThreadID)
 
 		if err != nil {
-			//log.Printf(err.Error())
+			// log.Printf(err.Error())
 			// エラー内容を返して原因を掴む
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -108,16 +106,13 @@ func BBSrouting(){
 		res, err2 := server.DB.Exec(`
 			INSERT INTO thread_messages (name,message_text,thread_id,created_at, updated_at)
 			VALUES ($1,$2,$3, NOW(), NOW());
-		`, from_front.Name, from_front.Message,insertedThreadID)
+		`, from_front.Name, from_front.Message, insertedThreadID)
 		if err2 != nil {
-			//log.Printf(err.Error())
+			// log.Printf(err.Error())
 			// エラー内容を返して原因を掴む
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-
-
-
 
 		if n, _ := res.RowsAffected(); n == 0 {
 			// トリガやルールのせいで 0 になることもあるが、基本は入らない合図
@@ -127,21 +122,19 @@ func BBSrouting(){
 		c.String(http.StatusOK, "ok")
 	})
 
-
 	server.Router.POST("/bbs/get_messages", func(c *gin.Context) {
 
 		var from_front Receive_Thread_Info
 		if c.ShouldBind(&from_front) != nil {
-			
+
 		}
 
 		rows, err := server.DB.Query(`SELECT id,message_text,name FROM thread_messages 
 		WHERE thread_messages.thread_id = $1
-		ORDER BY id ASC LIMIT 10`,from_front.ID)
+		ORDER BY id ASC LIMIT 10`, from_front.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
-
 
 		var thread_messages []Send_Message
 
@@ -155,8 +148,8 @@ func BBSrouting(){
 			}
 
 			thread_messages = append(thread_messages, Send_Message{
-				ID:      id,
-				Name: name,
+				ID:           id,
+				Name:         name,
 				Message_Text: message_text,
 			})
 
@@ -177,22 +170,19 @@ func BBSrouting(){
 			"message": res_mes,
 		})*/
 		if c.ShouldBind(&from_front) != nil {
-			
+
 		}
 
 		res, err := server.DB.Exec(`
 			INSERT INTO thread_messages (name,message_text,thread_id,created_at, updated_at)
 			VALUES ($1,$2,$3, NOW(), NOW());
-		`, from_front.Name, from_front.Message_Text,from_front.ThreadID)
+		`, from_front.Name, from_front.Message_Text, from_front.ThreadID)
 		if err != nil {
-			//log.Printf(err.Error())
+			// log.Printf(err.Error())
 			// エラー内容を返して原因を掴む
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-
-
-
 
 		if n, _ := res.RowsAffected(); n == 0 {
 			// トリガやルールのせいで 0 になることもあるが、基本は入らない合図

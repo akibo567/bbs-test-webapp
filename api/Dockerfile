@@ -12,13 +12,15 @@ ENV CGO_ENABLED=0 \
 
 # 開発ユーティリティと証明書
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      git ca-certificates bash build-essential \
+      git ca-certificates bash build-essential curl \
     && rm -rf /var/lib/apt/lists/* \
     && update-ca-certificates
 
 # ===== dev (hot reload with Air) =====
 FROM base AS dev
 RUN go install github.com/air-verse/air@latest
+RUN curl -sSfL https://golangci-lint.run/install.sh \
+    | sh -s -- -b "$(go env GOPATH)/bin" v2.7.2
 
 #COPY go.mod go.sum ./
 #RUN go mod download

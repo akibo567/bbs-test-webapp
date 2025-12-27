@@ -17,5 +17,5 @@ func InitDB() {
 	if dbErr != nil {
 		log.Fatal(dbErr)
 	}
-	DB = _db;
+	DB = _db
 }

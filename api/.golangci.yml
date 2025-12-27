@@ -1,0 +1,64 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+  skip-dirs:
+    - tmp
+    - vendor
+    - node_modules
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - revive
+    - gocritic
+    - ineffassign
+    - misspell
+    - bodyclose
+    - unconvert
+    - unused
+
+linters-settings:
+  revive:
+    ignore-generated-header: "Code generated"
+    severity: warning
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: error-strings
+      - name: errorf
+      - name: if-return
+      - name: var-declaration
+      - name: increment-decrement
+      - name: range
+      - name: receiver-naming
+      - name: time-naming
+      - name: unexported-return
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    paths:
+      - "vendor"
+      - "third_party"
+      - "generated"
+      - ".*\\.pb\\.go$"
+      - ".*_mock\\.go$"
+      - ".*\\.gen\\.go$"
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gocritic
+        - revive
