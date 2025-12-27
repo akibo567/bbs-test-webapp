@@ -2,6 +2,8 @@ ARG NODE_IMAGE=node:25.0.0-trixie-slim
 
 FROM ${NODE_IMAGE} AS base
 WORKDIR /app
+
+FROM base AS deps
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci
 
@@ -12,6 +14,7 @@ CMD ["npm","run","dev"]
 
 FROM base AS builder
 COPY . .
+COPY --from=deps /app/node_modules ./node_modules
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates git curl && \

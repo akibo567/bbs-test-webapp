@@ -9,9 +9,14 @@ services:
         NODE_IMAGE: node:25-trixie
     volumes:
       - ./frontend:/app
-      - node_modules:/app/node_modules
     command: >
-      sh -lc "if [ ! -d node_modules ]; then npm ci; fi; npm run dev"
+      sh -lc "if [ ! -x node_modules/.bin/next ]; 
+        then if [ -f package-lock.json ]; 
+            then npm ci; 
+            else npm install; 
+          fi; 
+        fi; 
+      npm run dev"
     environment:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
@@ -33,6 +38,5 @@ services:
       - internal
       - edge
 volumes:
-  node_modules:
   go-mod:
   go-build:
