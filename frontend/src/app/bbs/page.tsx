@@ -1,12 +1,9 @@
-'use client'
+"use client";
 
 //import Image from "next/image";
 
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-
-
 
 interface Type_Thread {
   id: number;
@@ -15,59 +12,63 @@ interface Type_Thread {
   message: string;
 }
 
-interface Type_ThreadCard_props{
-  id:number;
-  name:string;
-  title:string;
-  message:string;
+interface Type_ThreadCard_props {
+  id: number;
+  name: string;
+  title: string;
+  message: string;
 }
 
-  const APIENDPOINT:string = "/api";
+const APIENDPOINT: string = "/api";
 
-    const MakeThread:Function = async (_name:string,_title:string,_message:string) => {
-      const res = await fetch(APIENDPOINT +"/bbs/post_thread", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // 送信したいデータ
-        body: JSON.stringify({
-          Name: _name,
-          Title: _title,
-          Message: _message,
-        }),
-      });
+const MakeThread: Function = async (
+  _name: string,
+  _title: string,
+  _message: string,
+) => {
+  const res = await fetch(APIENDPOINT + "/bbs/post_thread", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    // 送信したいデータ
+    body: JSON.stringify({
+      Name: _name,
+      Title: _title,
+      Message: _message,
+    }),
+  });
 
-      if(res.status==200){
-        alert("書き込みました！");
-      }else{
-        alert("書き込みに失敗しました");
-      }
-      //const ping_resp = await res.json();
-      //console.log(ping_resp["message"]);
-  };
+  if (res.status == 200) {
+    alert("書き込みました！");
+  } else {
+    alert("書き込みに失敗しました");
+  }
+  //const ping_resp = await res.json();
+  //console.log(ping_resp["message"]);
+};
 
-   const LoadThreads:Function = async () => {
-      const res = await fetch(APIENDPOINT + "/bbs/get_threads", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // 送信したいデータ
-        /*body: JSON.stringify({
+const LoadThreads: Function = async () => {
+  const res = await fetch(APIENDPOINT + "/bbs/get_threads", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    // 送信したいデータ
+    /*body: JSON.stringify({
           TEST: "20",
         }),*/
-      });
+  });
 
-      if(res.status!=200){
-        alert("ロードに失敗しました");
-      }
+  if (res.status != 200) {
+    alert("ロードに失敗しました");
+  }
 
-      const respj = await res.json();
-      //console.log(respj);
-      
-      let return_messages:Type_Thread[]=[];
-      /*respj["threads"].map( (resp) => {
+  const respj = await res.json();
+  //console.log(respj);
+
+  const return_messages: Type_Thread[] = [];
+  /*respj["threads"].map( (resp) => {
         return_messages = [
           ...return_messages,
           {
@@ -77,99 +78,94 @@ interface Type_ThreadCard_props{
           }
         console.log(resp["threads"])
       ]});*/
-      //console.log(respj["threads"]);
-      return respj["threads"];
-  };
+  //console.log(respj["threads"]);
+  return respj["threads"];
+};
 
 export default function Home() {
+  const [threads, Cthreads] = useState<Type_Thread[]>([]);
+  const [input_name, Cinput_name] = useState<string>();
+  const [input_title, Cinput_title] = useState<string>();
+  const [input_message, Cinput_message] = useState<string>();
 
-  const [threads,Cthreads] = useState<Type_Thread[]>([]);
-  const [input_name,Cinput_name] = useState<string>();
-  const [input_title,Cinput_title] = useState<string>();
-  const [input_message,Cinput_message] = useState<string>();
-
-  async function fetchPosts(_viewthreadsdata:Type_Thread[]){
+  async function fetchPosts(_viewthreadsdata: Type_Thread[]) {
     console.log(_viewthreadsdata);
-    Cthreads(
-      [
-        ..._viewthreadsdata,
-      ]
-    )
-  };
-
-
+    Cthreads([..._viewthreadsdata]);
+  }
 
   useEffect(() => {
     //fetchPosts();
-  (async () => {
-    const data = await LoadThreads();
-    fetchPosts(data);
-  })();
+    (async () => {
+      const data = await LoadThreads();
+      fetchPosts(data);
+    })();
     //fetchPing();
   }, []);
 
   return (
     <div>
       <span>わくわく川柳掲示板/トップスレッド</span>
-      {
-        threads.map(
-          (thread) => (
-            <div key={thread.id}>
-              <ThreadCard
-              id={thread.id}
-              name={thread.name}
-              title={thread.title}
-              message={thread.message}
-              />
-            </div>
-          )
-        )
-      }
+      {threads.map((thread) => (
+        <div key={thread.id}>
+          <ThreadCard
+            id={thread.id}
+            name={thread.name}
+            title={thread.title}
+            message={thread.message}
+          />
+        </div>
+      ))}
 
-<div>
-    <label>名前:</label>
-    <textarea
-    value={input_name}
-    onChange={(e)=> {Cinput_name(e.target.value)} }
-    />
-</div>
-<div>
-    <label>タイトル:</label>
-    <textarea
-    value={input_title}
-    onChange={(e)=> {Cinput_title(e.target.value)} }
-    />
-</div>
+      <div>
+        <label>名前:</label>
+        <textarea
+          value={input_name}
+          onChange={(e) => {
+            Cinput_name(e.target.value);
+          }}
+        />
+      </div>
+      <div>
+        <label>タイトル:</label>
+        <textarea
+          value={input_title}
+          onChange={(e) => {
+            Cinput_title(e.target.value);
+          }}
+        />
+      </div>
 
-<div>
-    <label>本文:</label>
-    <textarea
-    value={input_message}
-    onChange={(e)=> {Cinput_message(e.target.value)} }
-    />
-</div>
+      <div>
+        <label>本文:</label>
+        <textarea
+          value={input_message}
+          onChange={(e) => {
+            Cinput_message(e.target.value);
+          }}
+        />
+      </div>
 
-    <button onClick={()=>{
-      MakeThread(input_name,input_title,input_message);
-      //alert(input_message);
-    }}>送信</button>
+      <button
+        onClick={() => {
+          MakeThread(input_name, input_title, input_message);
+          //alert(input_message);
+        }}
+      >
+        送信
+      </button>
     </div>
   );
-
-
-
-
-
 }
 
-
-export function ThreadCard(props:Type_ThreadCard_props) {
+export function ThreadCard(props: Type_ThreadCard_props) {
   const router = useRouter();
 
   return (
-    <div className="card"
-    onClick={() => router.push("/bbs/thread/"+props.id)}>
-      <span>{props.title? props.title: '名無しスレ'}</span>
+    <div
+      className="card"
+      onClick={() => router.push("/bbs/thread/" + props.id)}
+    >
+      <span>{props.title ? props.title : "名無しスレ"}</span>
     </div>
   );
 }
