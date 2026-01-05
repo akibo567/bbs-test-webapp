@@ -11,7 +11,6 @@ import (
 
 	"bbs-test-webapp/server"
 	"bbs-test-webapp/server/bbs"
-	"bbs-test-webapp/server/easychat"
 	"bbs-test-webapp/util"
 )
 
@@ -41,7 +40,6 @@ func main() {
 		})
 	})
 
-	easychat.Chatrouting()
 	bbs.BBSrouting()
 
 	server.Router.Run(":" + port)
