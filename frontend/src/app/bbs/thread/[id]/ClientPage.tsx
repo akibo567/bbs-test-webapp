@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 interface Type_Message {
   id: number;
@@ -16,13 +15,29 @@ interface Type_MessageCard_props {
 }
 
 const APIENDPOINT: string = "/api";
+const MESSAGE_LENGTH = 17;
+const NAME_MAX_LENGTH = 20;
 
-const SendMessage: Function = async (
+const SendMessage = async (
   _name: string,
   _message: string,
   _threadID: number,
-) => {
+): Promise<void> => {
   console.log(_threadID);
+  const trimmedName = _name.trim();
+  if (trimmedName.length === 0) {
+    alert("名前を入力してください");
+    return;
+  }
+  if (trimmedName.length > NAME_MAX_LENGTH) {
+    alert(`名前は${NAME_MAX_LENGTH}文字以内で入力してください`);
+    return;
+  }
+  const trimmedMessage = _message.replace(/\r?\n/g, "");
+  if (trimmedMessage.length !== MESSAGE_LENGTH) {
+    alert(`本文は5+7+5丁度の${MESSAGE_LENGTH}文字丁度で入力してください！(字余りは許容されません)`);
+    return;
+  }
   const res = await fetch(APIENDPOINT + "/bbs/post_message", {
     method: "POST",
     headers: {
@@ -36,7 +51,7 @@ const SendMessage: Function = async (
     }),
   });
 
-  if (res.status == 200) {
+  if (res.status === 200) {
     alert("書き込みました！");
   } else {
     alert("書き込みに失敗しました");
@@ -45,8 +60,8 @@ const SendMessage: Function = async (
   //console.log(ping_resp["message"]);
 };
 
-const LoadMessages: Function = async (_threadID: number) => {
-  if (_threadID == 0) return;
+const LoadMessages = async (_threadID: number): Promise<Type_Message[]> => {
+  if (_threadID === 0) return [];
 
   const controller = new AbortController();
 
@@ -61,14 +76,14 @@ const LoadMessages: Function = async (_threadID: number) => {
     }),
   });
 
-  if (res.status != 200) {
+  if (res.status !== 200) {
     alert("ロードに失敗しました");
   }
 
   const respj = await res.json();
   //console.log(respj);
 
-  const return_messages: Type_Message[] = [];
+  // const return_messages: Type_Message[] = [];
   /*respj["threads"].map( (resp) => {
         return_messages = [
           ...return_messages,
@@ -80,18 +95,20 @@ const LoadMessages: Function = async (_threadID: number) => {
         console.log(resp["threads"])
       ]});*/
   //console.log(respj["threads"]);
-  return respj["messages"];
+  return respj["messages"] as Type_Message[];
+
 };
 
 export function ClientPage({ pageid }: { pageid: string }) {
   const [messages, Cmessages] = useState<Type_Message[]>([]);
-  const [input_name, Cinput_name] = useState<string>();
-  const [input_message, Cinput_message] = useState<string>();
-  const [thread_title, Cthread_title] = useState<string>("仮置きスレ名");
+  const [input_name, Cinput_name] = useState<string>("");
+  const [input_message, Cinput_message] = useState<string>("");
+  const [thread_title, Cthread_title] = useState<string>("");
 
   async function fetchPosts(_viewmessagesdata: Type_Message[]) {
     console.log(_viewmessagesdata);
     Cmessages([..._viewmessagesdata]);
+    Cthread_title("仮スレッド名");
   }
 
   useEffect(() => {
@@ -121,6 +138,7 @@ export function ClientPage({ pageid }: { pageid: string }) {
         <label>名前:</label>
         <textarea
           value={input_name}
+          maxLength={NAME_MAX_LENGTH}
           onChange={(e) => {
             Cinput_name(e.target.value);
           }}

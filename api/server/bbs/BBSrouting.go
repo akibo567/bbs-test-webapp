@@ -3,6 +3,8 @@ package bbs
 import (
 	"log"
 	"net/http"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
 
@@ -45,6 +47,20 @@ type Receive_Thread_Info struct {
 }
 
 func BBSrouting() {
+	const messageLength = 17
+	const nameMaxLength = 20
+	const titleMaxLength = 20
+	trimNewlines := func(message string) string {
+		trimmed := strings.ReplaceAll(message, "\n", "")
+		return strings.ReplaceAll(trimmed, "\r", "")
+	}
+	isNonEmptyWithin := func(value string, max int) bool {
+		trimmed := strings.TrimSpace(value)
+		if trimmed == "" {
+			return false
+		}
+		return utf8.RuneCountInString(trimmed) <= max
+	}
 
 	server.Router.POST("/bbs/get_threads", func(c *gin.Context) {
 		rows, err := server.DB.Query(`SELECT id,title FROM threads 
@@ -85,8 +101,21 @@ func BBSrouting() {
 		/*c.JSON(http.StatusOK, gin.H{
 			"message": res_mes,
 		})*/
-		if c.ShouldBind(&from_front) != nil {
-
+		if err := c.ShouldBind(&from_front); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+			return
+		}
+		if utf8.RuneCountInString(trimNewlines(from_front.Message)) != messageLength {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "message must be 17 characters"})
+			return
+		}
+		if !isNonEmptyWithin(from_front.Name, nameMaxLength) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "name is required and must be 20 characters or less"})
+			return
+		}
+		if !isNonEmptyWithin(from_front.Title, titleMaxLength) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "title is required and must be 20 characters or less"})
+			return
 		}
 
 		var insertedThreadID int
@@ -169,8 +198,17 @@ func BBSrouting() {
 		/*c.JSON(http.StatusOK, gin.H{
 			"message": res_mes,
 		})*/
-		if c.ShouldBind(&from_front) != nil {
-
+		if err := c.ShouldBind(&from_front); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+			return
+		}
+		if utf8.RuneCountInString(trimNewlines(from_front.Message_Text)) != messageLength {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "message must be 17 characters"})
+			return
+		}
+		if !isNonEmptyWithin(from_front.Name, nameMaxLength) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "name is required and must be 20 characters or less"})
+			return
 		}
 
 		res, err := server.DB.Exec(`

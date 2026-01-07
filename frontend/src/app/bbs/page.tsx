@@ -20,12 +20,38 @@ interface Type_ThreadCard_props {
 }
 
 const APIENDPOINT: string = "/api";
+const MESSAGE_LENGTH = 17;
+const NAME_MAX_LENGTH = 20;
+const TITLE_MAX_LENGTH = 20;
 
-const MakeThread: Function = async (
+const MakeThread = async (
   _name: string,
   _title: string,
   _message: string,
-) => {
+): Promise<void> => {
+  const trimmedName = _name.trim();
+  const trimmedTitle = _title.trim();
+  if (trimmedName.length === 0) {
+    alert("名前を入力してください");
+    return;
+  }
+  if (trimmedName.length > NAME_MAX_LENGTH) {
+    alert(`名前は${NAME_MAX_LENGTH}文字以内で入力してください`);
+    return;
+  }
+  if (trimmedTitle.length === 0) {
+    alert("タイトルを入力してください");
+    return;
+  }
+  if (trimmedTitle.length > TITLE_MAX_LENGTH) {
+    alert(`タイトルは${TITLE_MAX_LENGTH}文字以内で入力してください`);
+    return;
+  }
+  const trimmedMessage = _message.replace(/\r?\n/g, "");
+  if (trimmedMessage.length !== MESSAGE_LENGTH) {
+    alert(`本文は5+7+5丁度の${MESSAGE_LENGTH}文字丁度で入力してください！(字余りは許容されません)`);
+    return;
+  }
   const res = await fetch(APIENDPOINT + "/bbs/post_thread", {
     method: "POST",
     headers: {
@@ -39,7 +65,7 @@ const MakeThread: Function = async (
     }),
   });
 
-  if (res.status == 200) {
+  if (res.status === 200) {
     alert("書き込みました！");
   } else {
     alert("書き込みに失敗しました");
@@ -48,7 +74,7 @@ const MakeThread: Function = async (
   //console.log(ping_resp["message"]);
 };
 
-const LoadThreads: Function = async () => {
+const LoadThreads = async (): Promise<Type_Thread[]> => {
   const res = await fetch(APIENDPOINT + "/bbs/get_threads", {
     method: "POST",
     headers: {
@@ -60,14 +86,14 @@ const LoadThreads: Function = async () => {
         }),*/
   });
 
-  if (res.status != 200) {
+  if (res.status !== 200) {
     alert("ロードに失敗しました");
   }
 
   const respj = await res.json();
   //console.log(respj);
 
-  const return_messages: Type_Thread[] = [];
+  // const return_messages: Type_Thread[] = [];
   /*respj["threads"].map( (resp) => {
         return_messages = [
           ...return_messages,
@@ -79,14 +105,14 @@ const LoadThreads: Function = async () => {
         console.log(resp["threads"])
       ]});*/
   //console.log(respj["threads"]);
-  return respj["threads"];
+  return respj["threads"] as Type_Thread[];
 };
 
 export default function Home() {
   const [threads, Cthreads] = useState<Type_Thread[]>([]);
-  const [input_name, Cinput_name] = useState<string>();
-  const [input_title, Cinput_title] = useState<string>();
-  const [input_message, Cinput_message] = useState<string>();
+  const [input_name, Cinput_name] = useState<string>("");
+  const [input_title, Cinput_title] = useState<string>("");
+  const [input_message, Cinput_message] = useState<string>("");
 
   async function fetchPosts(_viewthreadsdata: Type_Thread[]) {
     console.log(_viewthreadsdata);
@@ -120,6 +146,7 @@ export default function Home() {
         <label>名前:</label>
         <textarea
           value={input_name}
+          maxLength={NAME_MAX_LENGTH}
           onChange={(e) => {
             Cinput_name(e.target.value);
           }}
@@ -129,6 +156,7 @@ export default function Home() {
         <label>タイトル:</label>
         <textarea
           value={input_title}
+          maxLength={TITLE_MAX_LENGTH}
           onChange={(e) => {
             Cinput_title(e.target.value);
           }}
