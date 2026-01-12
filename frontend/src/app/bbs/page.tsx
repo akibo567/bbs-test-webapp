@@ -216,6 +216,7 @@ export default function Home() {
           await MakeThread(input_name, input_title, input_message, async () => {
             const data = await LoadThreads(current_page);
             fetchPosts(data);
+            Cinput_name("");Cinput_message("");Cinput_title("");
           });
           //alert(input_message);
         }}

@@ -203,6 +203,7 @@ export function ClientPage({ pageid }: { pageid: string }) {
         onClick={async () => {
           await SendMessage(input_name, input_message, Number(pageid), async () => {
             const data = await LoadMessages(Number(pageid), current_page);
+            Cinput_name("");Cinput_message("");
             fetchPosts(data);
           });
           //alert(input_message);
