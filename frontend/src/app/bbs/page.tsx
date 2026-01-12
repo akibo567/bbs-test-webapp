@@ -74,16 +74,22 @@ const MakeThread = async (
   //console.log(ping_resp["message"]);
 };
 
-const LoadThreads = async (): Promise<Type_Thread[]> => {
+const LoadThreads = async (
+  _page: number = 1,
+): Promise<{
+  threads: Type_Thread[];
+  total_count: number;
+  total_pages: number;
+  current_page: number;
+}> => {
   const res = await fetch(APIENDPOINT + "/bbs/get_threads", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    // 送信したいデータ
-    /*body: JSON.stringify({
-          TEST: "20",
-        }),*/
+    body: JSON.stringify({
+      page: _page,
+    }),
   });
 
   if (res.status !== 200) {
@@ -91,21 +97,13 @@ const LoadThreads = async (): Promise<Type_Thread[]> => {
   }
 
   const respj = await res.json();
-  //console.log(respj);
 
-  // const return_messages: Type_Thread[] = [];
-  /*respj["threads"].map( (resp) => {
-        return_messages = [
-          ...return_messages,
-          {
-            id:resp["id"],
-            name:resp["name"],
-            title:resp["title"],
-          }
-        console.log(resp["threads"])
-      ]});*/
-  //console.log(respj["threads"]);
-  return respj["threads"] as Type_Thread[];
+  return {
+    threads: respj["threads"] as Type_Thread[],
+    total_count: respj["total_count"] as number,
+    total_pages: respj["total_pages"] as number,
+    current_page: respj["current_page"] as number,
+  };
 };
 
 export default function Home() {
@@ -113,20 +111,35 @@ export default function Home() {
   const [input_name, Cinput_name] = useState<string>("");
   const [input_title, Cinput_title] = useState<string>("");
   const [input_message, Cinput_message] = useState<string>("");
+  const [current_page, Ccurrent_page] = useState<number>(1);
+  const [total_pages, Ctotal_pages] = useState<number>(1);
 
-  async function fetchPosts(_viewthreadsdata: Type_Thread[]) {
+  async function fetchPosts(_viewthreadsdata: {
+    threads: Type_Thread[];
+    total_count: number;
+    total_pages: number;
+    current_page: number;
+  }) {
     console.log(_viewthreadsdata);
-    Cthreads([..._viewthreadsdata]);
+    Cthreads([..._viewthreadsdata.threads]);
+    Ctotal_pages(_viewthreadsdata.total_pages);
+    Ccurrent_page(_viewthreadsdata.current_page);
   }
 
   useEffect(() => {
-    //fetchPosts();
-    (async () => {
-      const data = await LoadThreads();
+    const loadPage = async (page: number) => {
+      const data = await LoadThreads(page);
       fetchPosts(data);
-    })();
+    };
+
+    loadPage(1);
     //fetchPing();
   }, []);
+
+  const loadPage = async (page: number) => {
+    const data = await LoadThreads(page);
+    fetchPosts(data);
+  };
 
   return (
     <div>
@@ -141,6 +154,27 @@ export default function Home() {
           />
         </div>
       ))}
+
+      {/* ページネーションボタン */}
+      {total_pages > 1 && (
+        <div style={{ margin: "20px 0" }}>
+          <button
+            onClick={() => loadPage(current_page - 1)}
+            disabled={current_page <= 1}
+          >
+            前のページ
+          </button>
+          <span style={{ margin: "0 10px" }}>
+            {current_page} / {total_pages}
+          </span>
+          <button
+            onClick={() => loadPage(current_page + 1)}
+            disabled={current_page >= total_pages}
+          >
+            次のページ
+          </button>
+        </div>
+      )}
 
       <div>
         <label>名前:</label>

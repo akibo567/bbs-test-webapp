@@ -43,7 +43,8 @@ type Send_Message struct {
 
 // メッセージ一覧取得時のスレッド情報取得の形式
 type Receive_Thread_Info struct {
-	ID int
+	ID   int
+	Page int
 }
 
 func BBSrouting() {
@@ -63,10 +64,37 @@ func BBSrouting() {
 	}
 
 	server.Router.POST("/bbs/get_threads", func(c *gin.Context) {
-		rows, err := server.DB.Query(`SELECT id,title FROM threads 
-		ORDER BY id DESC LIMIT 10`)
+		// ページ番号を取得（リクエストボディから）
+		var requestData struct {
+			Page int `json:"page"`
+		}
+		if err := c.ShouldBind(&requestData); err != nil {
+			// エラーでもデフォルト値を使用
+		}
+
+		// ページ番号のデフォルト値を1に設定
+		page := requestData.Page
+		if page < 1 {
+			page = 1
+		}
+
+		// 1ページあたりのスレッド数
+		const perPage = 10
+		offset := (page - 1) * perPage
+
+		// 全スレッド数を取得
+		var totalCount int
+		err := server.DB.QueryRow(`SELECT COUNT(*) FROM threads`).Scan(&totalCount)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		rows, err := server.DB.Query(`SELECT id,title FROM threads
+		ORDER BY id DESC LIMIT $1 OFFSET $2`, perPage, offset)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 
 		var bbs_threads []Send_Thread
@@ -90,8 +118,15 @@ func BBSrouting() {
 		if err := rows.Err(); err != nil {
 			log.Fatal(err)
 		}
+
+		// 全ページ数を計算
+		totalPages := (totalCount + perPage - 1) / perPage
+
 		c.JSON(http.StatusOK, gin.H{
-			"threads": bbs_threads,
+			"threads":      bbs_threads,
+			"total_count":  totalCount,
+			"total_pages":  totalPages,
+			"current_page": page,
 		})
 	})
 
@@ -158,6 +193,16 @@ func BBSrouting() {
 
 		}
 
+		// ページ番号のデフォルト値を1に設定
+		page := from_front.Page
+		if page < 1 {
+			page = 1
+		}
+
+		// 1ページあたりのメッセージ数
+		const perPage = 10
+		offset := (page - 1) * perPage
+
 		// スレッド名を取得
 		var threadTitle string
 		err := server.DB.QueryRow(`SELECT title FROM threads WHERE id = $1`, from_front.ID).Scan(&threadTitle)
@@ -166,9 +211,17 @@ func BBSrouting() {
 			return
 		}
 
+		// 全メッセージ数を取得
+		var totalCount int
+		err = server.DB.QueryRow(`SELECT COUNT(*) FROM thread_messages WHERE thread_id = $1`, from_front.ID).Scan(&totalCount)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
 		rows, err2 := server.DB.Query(`SELECT id,message_text,name FROM thread_messages
 		WHERE thread_messages.thread_id = $1
-		ORDER BY id ASC LIMIT 10`, from_front.ID)
+		ORDER BY id ASC LIMIT $2 OFFSET $3`, from_front.ID, perPage, offset)
 		if err2 != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err2.Error()})
 			return
@@ -196,9 +249,16 @@ func BBSrouting() {
 		if err := rows.Err(); err != nil {
 			log.Fatal(err)
 		}
+
+		// 全ページ数を計算
+		totalPages := (totalCount + perPage - 1) / perPage
+
 		c.JSON(http.StatusOK, gin.H{
-			"messages": thread_messages,
-			"title":    threadTitle,
+			"messages":    thread_messages,
+			"title":       threadTitle,
+			"total_count": totalCount,
+			"total_pages": totalPages,
+			"current_page": page,
 		})
 	})
 

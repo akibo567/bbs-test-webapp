@@ -62,8 +62,16 @@ const SendMessage = async (
 
 const LoadMessages = async (
   _threadID: number,
-): Promise<{ messages: Type_Message[]; title: string }> => {
-  if (_threadID === 0) return { messages: [], title: "" };
+  _page: number = 1,
+): Promise<{
+  messages: Type_Message[];
+  title: string;
+  total_count: number;
+  total_pages: number;
+  current_page: number;
+}> => {
+  if (_threadID === 0)
+    return { messages: [], title: "", total_count: 0, total_pages: 0, current_page: 1 };
 
   const controller = new AbortController();
 
@@ -75,6 +83,7 @@ const LoadMessages = async (
     },
     body: JSON.stringify({
       ID: _threadID,
+      Page: _page,
     }),
   });
 
@@ -83,23 +92,13 @@ const LoadMessages = async (
   }
 
   const respj = await res.json();
-  //console.log(respj);
 
-  // const return_messages: Type_Message[] = [];
-  /*respj["threads"].map( (resp) => {
-        return_messages = [
-          ...return_messages,
-          {
-            id:resp["id"],
-            name:resp["name"],
-            title:resp["title"],
-          }
-        console.log(resp["threads"])
-      ]});*/
-  //console.log(respj["threads"]);
   return {
     messages: respj["messages"] as Type_Message[],
     title: respj["title"] as string,
+    total_count: respj["total_count"] as number,
+    total_pages: respj["total_pages"] as number,
+    current_page: respj["current_page"] as number,
   };
 };
 
@@ -108,25 +107,39 @@ export function ClientPage({ pageid }: { pageid: string }) {
   const [input_name, Cinput_name] = useState<string>("");
   const [input_message, Cinput_message] = useState<string>("");
   const [thread_title, Cthread_title] = useState<string>("");
+  const [current_page, Ccurrent_page] = useState<number>(1);
+  const [total_pages, Ctotal_pages] = useState<number>(1);
 
   async function fetchPosts(_viewmessagesdata: {
     messages: Type_Message[];
     title: string;
+    total_count: number;
+    total_pages: number;
+    current_page: number;
   }) {
     console.log(_viewmessagesdata);
     Cmessages([..._viewmessagesdata.messages]);
     Cthread_title(_viewmessagesdata.title);
+    Ctotal_pages(_viewmessagesdata.total_pages);
+    Ccurrent_page(_viewmessagesdata.current_page);
   }
 
   useEffect(() => {
     if (!pageid) return;
 
-    (async () => {
-      const data = await LoadMessages(Number(pageid));
+    const loadPage = async (page: number) => {
+      const data = await LoadMessages(Number(pageid), page);
       fetchPosts(data);
-    })();
+    };
+
+    loadPage(1);
     //fetchPing();
   }, [pageid]);
+
+  const loadPage = async (page: number) => {
+    const data = await LoadMessages(Number(pageid), page);
+    fetchPosts(data);
+  };
 
   return (
     <div>
@@ -140,6 +153,27 @@ export function ClientPage({ pageid }: { pageid: string }) {
           />
         </div>
       ))}
+
+      {/* ページネーションボタン */}
+      {total_pages > 1 && (
+        <div style={{ margin: "20px 0" }}>
+          <button
+            onClick={() => loadPage(current_page - 1)}
+            disabled={current_page <= 1}
+          >
+            前のページ
+          </button>
+          <span style={{ margin: "0 10px" }}>
+            {current_page} / {total_pages}
+          </span>
+          <button
+            onClick={() => loadPage(current_page + 1)}
+            disabled={current_page >= total_pages}
+          >
+            次のページ
+          </button>
+        </div>
+      )}
 
       <div>
         <label>名前:</label>
