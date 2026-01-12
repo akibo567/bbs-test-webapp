@@ -22,6 +22,7 @@ const SendMessage = async (
   _name: string,
   _message: string,
   _threadID: number,
+  onSuccess?: () => Promise<void>,
 ): Promise<void> => {
   console.log(_threadID);
   const trimmedName = _name.trim();
@@ -53,6 +54,9 @@ const SendMessage = async (
 
   if (res.status === 200) {
     alert("書き込みました！");
+    if (onSuccess) {
+      await onSuccess();
+    }
   } else {
     alert("書き込みに失敗しました");
   }
@@ -196,8 +200,11 @@ export function ClientPage({ pageid }: { pageid: string }) {
       </div>
 
       <button
-        onClick={() => {
-          SendMessage(input_name, input_message, Number(pageid));
+        onClick={async () => {
+          await SendMessage(input_name, input_message, Number(pageid), async () => {
+            const data = await LoadMessages(Number(pageid), current_page);
+            fetchPosts(data);
+          });
           //alert(input_message);
         }}
       >

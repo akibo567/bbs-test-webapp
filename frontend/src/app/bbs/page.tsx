@@ -28,6 +28,7 @@ const MakeThread = async (
   _name: string,
   _title: string,
   _message: string,
+  onSuccess?: () => Promise<void>,
 ): Promise<void> => {
   const trimmedName = _name.trim();
   const trimmedTitle = _title.trim();
@@ -67,6 +68,9 @@ const MakeThread = async (
 
   if (res.status === 200) {
     alert("書き込みました！");
+    if (onSuccess) {
+      await onSuccess();
+    }
   } else {
     alert("書き込みに失敗しました");
   }
@@ -208,8 +212,11 @@ export default function Home() {
       </div>
 
       <button
-        onClick={() => {
-          MakeThread(input_name, input_title, input_message);
+        onClick={async () => {
+          await MakeThread(input_name, input_title, input_message, async () => {
+            const data = await LoadThreads(current_page);
+            fetchPosts(data);
+          });
           //alert(input_message);
         }}
       >
