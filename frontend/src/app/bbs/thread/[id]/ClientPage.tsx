@@ -60,8 +60,10 @@ const SendMessage = async (
   //console.log(ping_resp["message"]);
 };
 
-const LoadMessages = async (_threadID: number): Promise<Type_Message[]> => {
-  if (_threadID === 0) return [];
+const LoadMessages = async (
+  _threadID: number,
+): Promise<{ messages: Type_Message[]; title: string }> => {
+  if (_threadID === 0) return { messages: [], title: "" };
 
   const controller = new AbortController();
 
@@ -95,8 +97,10 @@ const LoadMessages = async (_threadID: number): Promise<Type_Message[]> => {
         console.log(resp["threads"])
       ]});*/
   //console.log(respj["threads"]);
-  return respj["messages"] as Type_Message[];
-
+  return {
+    messages: respj["messages"] as Type_Message[],
+    title: respj["title"] as string,
+  };
 };
 
 export function ClientPage({ pageid }: { pageid: string }) {
@@ -105,10 +109,13 @@ export function ClientPage({ pageid }: { pageid: string }) {
   const [input_message, Cinput_message] = useState<string>("");
   const [thread_title, Cthread_title] = useState<string>("");
 
-  async function fetchPosts(_viewmessagesdata: Type_Message[]) {
+  async function fetchPosts(_viewmessagesdata: {
+    messages: Type_Message[];
+    title: string;
+  }) {
     console.log(_viewmessagesdata);
-    Cmessages([..._viewmessagesdata]);
-    Cthread_title("仮スレッド名");
+    Cmessages([..._viewmessagesdata.messages]);
+    Cthread_title(_viewmessagesdata.title);
   }
 
   useEffect(() => {

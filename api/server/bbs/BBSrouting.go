@@ -158,11 +158,20 @@ func BBSrouting() {
 
 		}
 
-		rows, err := server.DB.Query(`SELECT id,message_text,name FROM thread_messages 
-		WHERE thread_messages.thread_id = $1
-		ORDER BY id ASC LIMIT 10`, from_front.ID)
+		// スレッド名を取得
+		var threadTitle string
+		err := server.DB.QueryRow(`SELECT title FROM threads WHERE id = $1`, from_front.ID).Scan(&threadTitle)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		rows, err2 := server.DB.Query(`SELECT id,message_text,name FROM thread_messages
+		WHERE thread_messages.thread_id = $1
+		ORDER BY id ASC LIMIT 10`, from_front.ID)
+		if err2 != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err2.Error()})
+			return
 		}
 
 		var thread_messages []Send_Message
@@ -189,6 +198,7 @@ func BBSrouting() {
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"messages": thread_messages,
+			"title":    threadTitle,
 		})
 	})
 
